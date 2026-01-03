@@ -1,0 +1,12 @@
+# Python junk
+__pycache__/
+*.py[cod]
+
+# Database (Optional: You usually don't track the DB, but for a solo project you can if you want. 
+# For now, let's ignore it so you don't get merge conflicts later.)
+dsa_tracker.db
+
+# Virtual Environment (If you made one)
+env/
+venv/
+.ipynb_checkpoints

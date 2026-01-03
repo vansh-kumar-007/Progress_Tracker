@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Coding Assignment</title>
+
+    <style>
+      body {
+        font-family: sf pro text, -apple-system, BlinkMacSystemFont, Roboto,
+          segoe ui, Helvetica, Arial, sans-serif, apple color emoji,
+          segoe ui emoji, segoe ui symbol;
+        font-weight: 400;
+        line-height: 22.4px;
+        font-size: 16px;
+      }
+      p, ul, ol {
+        font-size: 16px;
+        font-weight: 400;
+      }
+      h1, h2, h3, h4, h5, h6 {
+        font-weight: bold;
+      }
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        max-width: none;
+      }
+      .code-snippet {
+        background-color: #fff;
+        border: 1px solid #d1d7dc;
+        color: #b4690e;
+        font-size: 90%;
+        padding: 0.2rem 0.4rem;
+      }
+      .code-block {
+        background-color: #fff;
+        color: #b4690e;
+        font-size: 90%;
+      }
+      .black-block {
+        color: #000000;
+      }
+      .italic-text {
+        font-style: italic;
+      }
+    </style>
+  </head>
+
+  <body onload="main()">
+    <h1 id="coding-title"></h1>
+    <div>
+      <h2>Instructions</h2>
+      <div id="coding-instructions"></div>
+    </div>
+    <div>
+      <h2>Test(s)</h2>
+      <div id="coding-tests"></div>
+    </div>
+    <div>
+      <h2>Solution(s)</h2>
+      <div id="coding-solutions"></div>
+    </div>
+
+    <script>
+      const quizData = {"title": "003 Rectangle Pattern", "hasInstructions": true, "hasTests": true, "hasSolutions": true, "instructions": "<p><strong>Problem Description:</strong></p><p>You are given two integers, <code>n</code> and <code>m</code>. Your task is to return a rectangle pattern of <code>'*'</code>, where <code>n</code> represents the number of rows (length) and <code>m</code> represents the number of columns (breadth).</p><p><br></p><p><strong>Input:</strong></p><ul><li><p>Two integers <code>n</code> and <code>m</code>, where <code>1 &lt;= n, m &lt;= 100</code>.</p></li></ul><p><br></p><p><strong>Output:</strong></p><ul><li><p>A list of strings where each string represents a row of the rectangle pattern.</p></li></ul><p><br></p><p><strong>Example:</strong></p><pre class=\"prettyprint linenums\">Input: n = 4, m = 5\nOutput: ['*****', '*****', '*****', '*****']\n\nInput: n = 3, m = 2\nOutput: ['**', '**', '**']</pre><p><br></p><p><strong>Disclaimer:</strong> This Udemy coding exercise is still in development, so some advanced complexities might not be fully checked. Please use it primarily for basic code validation.</p>", "tests": [{"file_name": "evaluate.py", "content": "import unittest\nfrom exercise import generate_rectangle\n\nclass TestRectanglePattern(unittest.TestCase):\n    \n    def test_rectangle_size_4x5(self):\n        expected_output = ['*****', '*****', '*****', '*****']\n        self.assertEqual(generate_rectangle(4, 5), expected_output)\n\n    def test_rectangle_size_3x2(self):\n        expected_output = ['**', '**', '**']\n        self.assertEqual(generate_rectangle(3, 2), expected_output)\n\n    def test_rectangle_size_1x1(self):\n        expected_output = ['*']\n        self.assertEqual(generate_rectangle(1, 1), expected_output)\n\nif __name__ == '__main__':\n    unittest.main()\n"}], "solutions": [{"file_name": "exercise.py", "content": "def generate_rectangle(n, m):\n    \"\"\"\n    Function to return a rectangle pattern of '*' with length n and breadth m as a list of strings.\n    \n    Parameters:\n    n (int): The number of rows in the rectangle.\n    m (int): The number of columns in the rectangle.\n    \n    Returns:\n    list: A list of strings where each string represents a row of the rectangle pattern.\n    \"\"\"\n    # Initialize an empty list to store the rows of the rectangle\n    rectangle = []\n    \n    # Loop through each row from 1 to n\n    for _ in range(n):\n        # Create a row with m stars\n        row = '*' * m\n        # Add the row to the rectangle list\n        rectangle.append(row)\n    \n    # Return the list of rectangle rows\n    return rectangle\n"}]};
+
+      function renderCodeList(rootElement, codeList, className, titlePrefix) {
+        for (var i = 0; i < codeList.length; i++) {
+          var elem = codeList[i];
+          var jsElem = document.createElement("div");
+          jsElem.className = className;
+          var jsElemTitle = document.createElement("h3");
+          jsElemTitle.innerHTML = titlePrefix + " " + (i + 1);
+          var jsElemBody = document.createElement("code");
+          jsElemBody.className = "code-block black-block";
+          jsElemBody.innerHTML = "<pre>" + elem.content + "</pre>";
+          jsElem.appendChild(jsElemTitle);
+          jsElem.appendChild(jsElemBody);
+          rootElement.appendChild(jsElem);
+        }
+      }
+      
+      function main() {
+        // display the assignment
+        var codingTitle = document.getElementById("coding-title");
+        codingTitle.innerHTML = quizData.title;
+        
+        var codingInstructions = document.getElementById("coding-instructions");
+        if (quizData.hasInstructions) {
+          codingInstructions.innerHTML = quizData.instructions;
+        } else {
+          codingInstructions.innerHTML = "<span class=\"italic-text\">" + quizData.instructions
+            + "</span>";
+        }
+
+        // display the test(s)
+        var codingTests = document.getElementById("coding-tests");
+        if (!quizData.hasTests) {
+          codingTests.innerHTML = "<span class=\"italic-text\">" + quizData.tests + "</span>";
+        } else {
+          renderCodeList(codingTests, quizData.tests, "coding-test", "Test");
+        }
+        
+
+        // display the solution(s)
+        var codingSolutions = document.getElementById("coding-solutions");
+        if (!quizData.hasSolutions) {
+          codingSolutions.innerHTML = "<span class=\"italic-text\">" + quizData.solutions + "</span>";
+        } else {
+          renderCodeList(codingSolutions, quizData.solutions, "coding-solution", "Solution");
+        }
+      }
+    </script>
+  </body>
+</html>
