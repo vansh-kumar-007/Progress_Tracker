@@ -203,6 +203,43 @@ def get_activity_data():
     return dates, counts
 
 
+def delete_problem(problem_id):
+    """Removes a problem and its history from the database."""
+    conn = get_connection()
+    c = conn.cursor()
+    # SQLite automatically removes linked 'attempts' if we configured CASCADE, 
+    # but to be safe, we manually delete attempts first.
+    c.execute("DELETE FROM attempts WHERE problem_id = ?", (problem_id,))
+    c.execute("DELETE FROM problems WHERE id = ?", (problem_id,))
+    conn.commit()
+    conn.close()
+
+
+
+    def add_notes_column():
+    #  '''Migration: Adds a 'user_notes' column to the problems table if it doesn't exist.'''
+    
+        conn = get_connection()
+        c = conn.cursor()
+        try:
+            # Try to select the column to see if it exists
+            c.execute("SELECT user_notes FROM problems LIMIT 1")
+        except:
+            # If it fails, add the column
+            print("Migrating DB: Adding user_notes column...")
+            c.execute("ALTER TABLE problems ADD COLUMN user_notes TEXT DEFAULT ''")
+            conn.commit()
+        conn.close()
+
+    def save_problem_notes(problem_id, notes):
+        """Saves user notes for a specific problem."""
+        conn = get_connection()
+        c = conn.cursor()
+        c.execute("UPDATE problems SET user_notes = ? WHERE id = ?", (notes, problem_id))
+        conn.commit()
+        conn.close()
+
+
 # --- FOR TESTING ONLY ---
 if __name__ == "__main__":
     print("Testing Database Manager...")

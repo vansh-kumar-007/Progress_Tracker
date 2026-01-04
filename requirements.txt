@@ -1,0 +1,10 @@
+# GUI and Image Handling
+customtkinter
+packaging
+Pillow
+
+# Data Visualization
+matplotlib
+
+# Code Quality
+pylint
