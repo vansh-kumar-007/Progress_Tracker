@@ -473,49 +473,65 @@ class DSAApp(ctk.CTk):
         instr_box.insert("0.0", instructions)
         instr_box.configure(state="disabled")
 
-       # RIGHT: Actions & Console
-        right_pane = ctk.CTkFrame(content, width=400) # Made wider
+       # RIGHT: Actions & Console/Notes
+        right_pane = ctk.CTkFrame(content, width=400)
         right_pane.pack(side="right", fill="y", padx=(10, 0))
 
-        # Buttons
+        # --- ACTIONS SECTION ---
         ctk.CTkLabel(right_pane, text="Actions", font=("DejaVu Sans", 14, "bold")).pack(pady=10)
         
-        # 1. Open in VS Code
         ctk.CTkButton(right_pane, text="Open in VS Code", fg_color="#E0E0E0", text_color="black", hover_color="#D6D6D6",
                       command=lambda: self.open_in_editor(full_path)).pack(fill="x", padx=10, pady=5)
         
-        # 2. Reset Code (NEW)
         ctk.CTkButton(right_pane, text="↺ Reset Code", fg_color="#D32F2F", hover_color="#B71C1C",
                       command=lambda: self.reset_code(problem_id, filename)).pack(fill="x", padx=10, pady=5)
         
-        # 3. Run Tests
         run_btn = ctk.CTkButton(right_pane, text="▶ Run Tests", fg_color="green", hover_color="darkgreen",
                                 command=lambda: self.run_tests_gui(problem_id, filename, test_code, self.console_box, is_solved))
         run_btn.pack(fill="x", padx=10, pady=15)
         
-        # 4. Mistake Log
         ctk.CTkButton(right_pane, text="📜 View Mistake Log", fg_color="#FF9800", hover_color="#F57C00",
                       command=lambda: self.show_history(problem_id, self.console_box)).pack(fill="x", padx=10, pady=5)
 
-        # CONSOLE CONTROLS (Zoom)
-        console_header = ctk.CTkFrame(right_pane, fg_color="transparent")
-        console_header.pack(fill="x", pady=(20, 0))
-        ctk.CTkLabel(console_header, text="Console:", font=("DejaVu Sans", 12, "bold")).pack(side="left", padx=10)
+        # --- TABS: CONSOLE & NOTES ---
+        self.tab_view = ctk.CTkTabview(right_pane)
+        self.tab_view.pack(fill="both", expand=True, padx=10, pady=10)
         
-        # Zoom Buttons
-        ctk.CTkButton(console_header, text="+", width=30, command=self.zoom_in).pack(side="right", padx=2)
-        ctk.CTkButton(console_header, text="-", width=30, command=self.zoom_out).pack(side="right", padx=2)
+        # Create Tabs
+        tab_console = self.tab_view.add("Test Results")
+        tab_notes = self.tab_view.add("My Notes")
+        
+        # TAB 1: CONSOLE (Moved logic here)
+        # Zoom controls inside the tab
+        console_controls = ctk.CTkFrame(tab_console, fg_color="transparent", height=30)
+        console_controls.pack(fill="x")
+        ctk.CTkButton(console_controls, text="+", width=30, command=self.zoom_in).pack(side="right", padx=2)
+        ctk.CTkButton(console_controls, text="-", width=30, command=self.zoom_out).pack(side="right", padx=2)
 
-        # CONSOLE BOX
-        self.console_box = ctk.CTkTextbox(right_pane, height=350, font=self.console_font, fg_color="#1e1e1e", text_color="#d4d4d4")
-        self.console_box.pack(fill="both", expand=True, padx=10, pady=5)
+        self.console_box = ctk.CTkTextbox(tab_console, font=self.console_font, fg_color="#1e1e1e", text_color="#d4d4d4")
+        self.console_box.pack(fill="both", expand=True)
         self.console_box.insert("0.0", "Ready.\n")
         self.console_box.configure(state="disabled")
+        self.console_box.tag_config("pass", foreground="#4CAF50")
+        self.console_box.tag_config("fail", foreground="#F44336")
+        self.console_box.tag_config("info", foreground="#2196F3")
+
+        # TAB 2: NOTES
+        self.notes_box = ctk.CTkTextbox(tab_notes, font=("DejaVu Sans", 12))
+        self.notes_box.pack(fill="both", expand=True, pady=(0, 10))
         
-        # Configure Tags for Color
-        self.console_box.tag_config("pass", foreground="#4CAF50") # Green
-        self.console_box.tag_config("fail", foreground="#F44336") # Red
-        self.console_box.tag_config("info", foreground="#2196F3") # Blue
+        # Load existing notes
+        conn = db.get_connection()
+        c = conn.cursor()
+        c.execute("SELECT user_notes FROM problems WHERE id = ?", (problem_id,))
+        saved_notes = c.fetchone()[0]
+        conn.close()
+        if saved_notes:
+            self.notes_box.insert("0.0", saved_notes)
+            
+        # Save Button
+        ctk.CTkButton(tab_notes, text="💾 Save Notes", height=30, 
+                      command=lambda: self.save_notes_gui(problem_id)).pack(fill="x")
 
     # --- ZOOM LOGIC ---
     def zoom_in(self):
@@ -752,6 +768,11 @@ class DSAApp(ctk.CTk):
             except Exception as e:
                 messagebox.showerror("Error", f"Could not reset file: {e}")
 
+                
+    def save_notes_gui(self, problem_id):
+        text = self.notes_box.get("0.0", "end").strip()
+        db.save_problem_notes(problem_id, text)
+        messagebox.showinfo("Saved", "Notes updated successfully!")
 if __name__ == "__main__":
     db.init_db()
     app = DSAApp()

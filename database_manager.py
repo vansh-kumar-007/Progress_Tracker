@@ -216,28 +216,27 @@ def delete_problem(problem_id):
 
 
 
-    def add_notes_column():
-    #  '''Migration: Adds a 'user_notes' column to the problems table if it doesn't exist.'''
-    
-        conn = get_connection()
-        c = conn.cursor()
-        try:
-            # Try to select the column to see if it exists
-            c.execute("SELECT user_notes FROM problems LIMIT 1")
-        except:
-            # If it fails, add the column
-            print("Migrating DB: Adding user_notes column...")
-            c.execute("ALTER TABLE problems ADD COLUMN user_notes TEXT DEFAULT ''")
-            conn.commit()
-        conn.close()
-
-    def save_problem_notes(problem_id, notes):
-        """Saves user notes for a specific problem."""
-        conn = get_connection()
-        c = conn.cursor()
-        c.execute("UPDATE problems SET user_notes = ? WHERE id = ?", (notes, problem_id))
+def add_notes_column():
+    """Migration: Adds a 'user_notes' column to the problems table if it doesn't exist."""
+    conn = get_connection()
+    c = conn.cursor()
+    try:
+        # Try to select the column to see if it exists
+        c.execute("SELECT user_notes FROM problems LIMIT 1")
+    except:
+        # If it fails, add the column
+        print("Migrating DB: Adding user_notes column...")
+        c.execute("ALTER TABLE problems ADD COLUMN user_notes TEXT DEFAULT ''")
         conn.commit()
-        conn.close()
+    conn.close()
+
+def save_problem_notes(problem_id, notes):
+    """Saves user notes for a specific problem."""
+    conn = get_connection()
+    c = conn.cursor()
+    c.execute("UPDATE problems SET user_notes = ? WHERE id = ?", (notes, problem_id))
+    conn.commit()
+    conn.close()
 
 
 # --- FOR TESTING ONLY ---
